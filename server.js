@@ -4,8 +4,10 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const swaggerUi = require("swagger-ui-express");
 
 const taskRoutes = require("./routes/taskRoutes");
+const swaggerSpec = require("./docs/swagger");
 
 const app = express();
 
@@ -56,6 +58,7 @@ app.get("/", (req, res) => {
     });
 });
 
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api", taskRoutes);
 
 const PORT = process.env.PORT || 5000;
