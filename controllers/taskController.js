@@ -274,14 +274,20 @@ const logout = async (req, res) => {
     }
 };
 
-// ================= GET TASKS =================
+// ================= TASKS =================
 const getTasks = async (req, res) => {
-    const requestType = req.query.type;
+    const {
+        RequestParamType,
+        BeginDate = null,
+        EndDate = null,
+        json = null
+    } = req.body;
+
     const userId = req.user.userid;
 
-    if (!requestType) {
+    if (!RequestParamType) {
         return res.status(400).json({
-            error: "type parameter is required"
+            error: "RequestParamType is required"
         });
     }
 
@@ -289,11 +295,11 @@ const getTasks = async (req, res) => {
         const pool = await connectDB();
 
         const result = await pool.request()
-            .input("RequestParamType", sql.VarChar(200), requestType)
+            .input("RequestParamType", sql.VarChar(200), RequestParamType)
             .input("UserId", sql.NVarChar(256), userId)
-            .input("BeginDate", sql.SmallDateTime, null)
-            .input("EndDate", sql.SmallDateTime, null)
-            .input("json", sql.NVarChar(sql.MAX), null)
+            .input("BeginDate", sql.SmallDateTime, BeginDate)
+            .input("EndDate", sql.SmallDateTime, EndDate)
+            .input("json", sql.NVarChar(sql.MAX), json)
             .execute("GetAPIData");
 
         return res.json({
