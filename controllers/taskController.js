@@ -1,3 +1,4 @@
+const { successResponse, errorResponse } = require("../utils/apiResponse");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
@@ -113,9 +114,7 @@ const login = async (req, res) => {
             `);
 
         if (result.recordset.length === 0) {
-            return res.status(401).json({
-                error: "Invalid username or password"
-            });
+            return errorResponse(res, "Invalid username or password", 401);
         }
 
         const user = result.recordset[0];
@@ -302,10 +301,7 @@ const getTasks = async (req, res) => {
             .input("json", sql.NVarChar(sql.MAX), json)
             .execute("GetAPIData");
 
-        return res.json({
-            success: true,
-            data: result.recordset
-        });
+        return successResponse(res, "Tasks fetched successfully", result.recordset);
 
     } catch (err) {
         console.error(err);
