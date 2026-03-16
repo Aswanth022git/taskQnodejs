@@ -6,7 +6,8 @@ const {
     login,
     refreshAccessToken,
     logout,
-    getTasks
+    getTasks,
+    addData
 } = require("../controllers/taskController");
 
 const authenticateToken = require("../middleware/authMiddleware");
@@ -30,7 +31,7 @@ const authenticateToken = require("../middleware/authMiddleware");
  *             properties:
  *               username:
  *                 type: string
- *                 example: pt@test.com
+ *                 example: ptuser
  *               email:
  *                 type: string
  *                 example: pt@test.com
@@ -61,7 +62,7 @@ router.post("/signup", signup);
  *             properties:
  *               username:
  *                 type: string
- *                 example: pt@test.com
+ *                 example: ptuser
  *               password:
  *                 type: string
  *                 example: Test@123
@@ -138,7 +139,7 @@ router.post("/logout", logout);
  *             properties:
  *               RequestParamType:
  *                 type: string
- *                 example: GetTasksByTypePriority
+ *                 example: ProjectCardView
  *               BeginDate:
  *                 type: string
  *                 example: 2026-03-01T00:00:00
@@ -146,12 +147,43 @@ router.post("/logout", logout);
  *                 type: string
  *                 example: 2026-03-31T00:00:00
  *               json:
- *                 type: string
- *                 example: "{\"key\":\"value\"}"
+ *                 example:
+ *                   TaskID: 123
  *     responses:
  *       200:
  *         description: Tasks fetched successfully
  */
 router.post("/tasks", authenticateToken, getTasks);
+
+/**
+ * @swagger
+ * /add-data:
+ *   post:
+ *     summary: Execute AddData procedure based on RequestParamType
+ *     tags: [AddData]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - RequestParamType
+ *             properties:
+ *               RequestParamType:
+ *                 type: string
+ *                 example: AddChecklist
+ *               json:
+ *                 example:
+ *                   TaskID: 123
+ *                   ItemText: Checklist item from API
+ *                   ItemMetaData: "{}"
+ *     responses:
+ *       200:
+ *         description: AddData executed successfully
+ */
+router.post("/add-data", authenticateToken, addData);
 
 module.exports = router;

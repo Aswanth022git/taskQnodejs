@@ -291,6 +291,13 @@ const getTasks = async (req, res) => {
     }
 
     try {
+        const jsonPayload =
+            json == null
+                ? null
+                : typeof json === "string"
+                    ? json
+                    : JSON.stringify(json);
+
         const pool = await connectDB();
 
         const result = await pool.request()
@@ -298,7 +305,7 @@ const getTasks = async (req, res) => {
             .input("UserId", sql.NVarChar(256), userId)
             .input("BeginDate", sql.SmallDateTime, BeginDate)
             .input("EndDate", sql.SmallDateTime, EndDate)
-            .input("json", sql.NVarChar(sql.MAX), json)
+            .input("json", sql.NVarChar(sql.MAX), jsonPayload)
             .execute("GetAPIData");
 
         return successResponse(res, "Tasks fetched successfully", result.recordset);
@@ -313,4 +320,72 @@ const getTasks = async (req, res) => {
     }
 };
 
-module.exports = { signup, login, refreshAccessToken, logout, getTasks };
+// ================= ADD DATA =================
+const addData = async (req, res) => {
+    const {
+        RequestParamType,
+        json = null
+    } = req.body;
+
+    const userId = req.user.userid;
+
+    if (!RequestParamType) {
+        return res.status(400).json({
+            success: false,
+            message: "RequestParamType is required"
+        });
+    }
+
+    try {
+        const jsonPayload =
+            json == null
+                ? null
+                : typeof json === "string"
+                    ? json
+                    : JSON.stringify(json);
+
+        const pool = await connectDB();
+
+        const result = await pool.request()
+            .input("json", sql.NVarChar(sql.MAX), jsonPayload)
+            .input("RequestParamType", sql.NVarChar(200), RequestParamType)
+            .input("UserId", sql.NVarChar(256), userId)
+            .output("ProcessCode", sql.Int)
+            .output("ProcessMessage", sql.VarChar(5000))
+            .execute("AddData");
+
+        const processCode = result.output.ProcessCode;
+        const processMessage = result.output.ProcessMessage;
+
+        if (processCode !== 0) {
+            return res.status(400).json({
+                success: false,
+                processCode,
+                message: processMessage
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            processCode,
+            message: processMessage
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            success: false,
+            message: "AddData procedure execution failed",
+            details: err.message
+        });
+    }
+};
+
+module.exports = {
+    signup,
+    login,
+    refreshAccessToken,
+    logout,
+    getTasks,
+    addData
+};
