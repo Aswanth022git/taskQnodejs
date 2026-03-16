@@ -7,7 +7,8 @@ const {
     refreshAccessToken,
     logout,
     getTasks,
-    addData
+    addData,
+    updateData
 } = require("../controllers/taskController");
 
 const authenticateToken = require("../middleware/authMiddleware");
@@ -185,5 +186,34 @@ router.post("/tasks", authenticateToken, getTasks);
  *         description: AddData executed successfully
  */
 router.post("/add-data", authenticateToken, addData);
+
+/**
+ * @swagger
+ * /update-data:
+ *   put:
+ *     summary: Execute UpdateData procedure based on RequestParamType
+ *     tags: [UpdateData]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - RequestParamType
+ *             properties:
+ *               RequestParamType:
+ *                 type: string
+ *                 example: UpdateReadStatus
+ *               json:
+ *                 example:
+ *                   TaskID: 123
+ *     responses:
+ *       200:
+ *         description: UpdateData executed successfully
+ */
+router.put("/update-data", authenticateToken, updateData);
 
 module.exports = router;
